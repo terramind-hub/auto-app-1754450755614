@@ -12,36 +12,32 @@ export function QuickActions({ onAction }: QuickActionsProps) {
   const actions = [
     {
       id: 'workout',
-      title: 'Start Workout',
-      description: 'Begin a new workout session',
+      label: 'Start Workout',
       icon: Play,
       color: 'bg-blue-500 hover:bg-blue-600',
-      textColor: 'text-white',
+      description: 'Log a new workout session'
     },
     {
       id: 'meal',
-      title: 'Log Meal',
-      description: 'Track your nutrition intake',
+      label: 'Log Meal',
       icon: Utensils,
       color: 'bg-green-500 hover:bg-green-600',
-      textColor: 'text-white',
+      description: 'Track your nutrition'
     },
     {
       id: 'weight',
-      title: 'Add Weight',
-      description: 'Record your current weight',
+      label: 'Add Weight',
       icon: Scale,
       color: 'bg-purple-500 hover:bg-purple-600',
-      textColor: 'text-white',
+      description: 'Update your weight'
     },
     {
       id: 'goal',
-      title: 'Set Goal',
-      description: 'Create a new fitness goal',
+      label: 'Set Goal',
       icon: Target,
       color: 'bg-orange-500 hover:bg-orange-600',
-      textColor: 'text-white',
-    },
+      description: 'Create a new fitness goal'
+    }
   ]
 
   return (
@@ -53,20 +49,22 @@ export function QuickActions({ onAction }: QuickActionsProps) {
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {actions.map((action) => {
             const Icon = action.icon
             return (
               <Button
                 key={action.id}
+                variant="outline"
+                className="h-auto p-4 flex flex-col items-center space-y-2 hover:scale-105 transition-transform"
                 onClick={() => onAction(action.id)}
-                className={`h-auto p-4 flex flex-col items-center space-y-2 ${action.color} ${action.textColor}`}
-                variant="default"
               >
-                <Icon className="h-6 w-6" />
+                <div className={`p-3 rounded-full text-white ${action.color}`}>
+                  <Icon className="h-6 w-6" />
+                </div>
                 <div className="text-center">
-                  <div className="font-medium">{action.title}</div>
-                  <div className="text-xs opacity-90">{action.description}</div>
+                  <p className="font-semibold">{action.label}</p>
+                  <p className="text-xs text-muted-foreground">{action.description}</p>
                 </div>
               </Button>
             )

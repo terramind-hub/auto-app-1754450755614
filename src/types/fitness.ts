@@ -1,10 +1,10 @@
 export interface Workout {
   id: string
   name: string
-  type: string
-  duration: number
-  calories: number
-  intensity: string
+  category: 'Cardio' | 'Strength' | 'Flexibility' | 'Sports'
+  duration: number // in minutes
+  intensity: 'Low' | 'Medium' | 'High'
+  caloriesBurned: number
   date: string
 }
 
@@ -12,48 +12,45 @@ export interface Meal {
   id: string
   name: string
   calories: number
-  protein?: number
-  carbs?: number
-  fat?: number
+  protein: number
+  carbs: number
+  fat: number
+  date: string
+}
+
+export interface WeightEntry {
+  id: string
+  weight: number
   date: string
 }
 
 export interface Goal {
   id: string
   title: string
-  type: string
   target: number
   current: number
   unit: string
-  period: string
-  deadline: string
+  timeframe: string
+  type: 'workout' | 'weight' | 'calories' | 'custom'
 }
 
-export interface WeeklyData {
+export interface WeeklyProgress {
   day: string
-  calories: number
   workouts: number
+  calories: number
 }
 
-export interface WeightEntry {
-  date: string
-  weight: number
-}
-
-export interface CaloriesEntry {
+export interface DailyCalories {
   date: string
   calories: number
 }
 
 export interface FitnessData {
-  todayCalories: number
-  workoutsThisWeek: number
-  activeMinutesToday: number
-  currentWeight: number
-  currentStreak: number
+  workouts: Workout[]
+  meals: Meal[]
+  weightEntries: WeightEntry[]
   goals: Goal[]
-  recentWorkouts: Workout[]
-  weeklyData: WeeklyData[]
-  weightHistory: WeightEntry[]
-  caloriesHistory: CaloriesEntry[]
+  currentStreak: number
+  weeklyProgress: WeeklyProgress[]
+  dailyCalories: DailyCalories[]
 }
