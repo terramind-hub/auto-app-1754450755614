@@ -5,8 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { WeightChart } from '@/components/weight-chart'
 import { WorkoutFrequencyChart } from '@/components/workout-frequency-chart'
 import { CaloriesChart } from '@/components/calories-chart'
-import { Badge } from '@/components/ui/badge'
-import { TrendingUp, Award, Target } from 'lucide-react'
+import { TrendingUp, Target, Award } from 'lucide-react'
 import { FitnessData } from '@/types/fitness'
 
 interface ProgressVisualizationProps {
@@ -15,15 +14,23 @@ interface ProgressVisualizationProps {
 
 export function ProgressVisualization({ data }: ProgressVisualizationProps) {
   const personalRecords = [
-    { name: 'Longest Run', value: '10.5 miles', date: '2024-01-15' },
+    { name: 'Longest Run', value: '10.5 km', date: '2024-01-15' },
     { name: 'Max Bench Press', value: '185 lbs', date: '2024-01-10' },
-    { name: 'Fastest 5K', value: '22:30', date: '2024-01-08' },
     { name: 'Most Calories Burned', value: '850 cal', date: '2024-01-12' },
+    { name: 'Longest Workout', value: '90 min', date: '2024-01-08' },
   ]
 
   return (
     <div className="space-y-6">
-      <Tabs defaultValue="weight" className="w-full">
+      <div className="flex items-center justify-between">
+        <h2 className="text-2xl font-bold tracking-tight">Progress Visualization</h2>
+        <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+          <TrendingUp className="h-4 w-4" />
+          <span>Last 30 days</span>
+        </div>
+      </div>
+
+      <Tabs defaultValue="weight" className="space-y-4">
         <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="weight">Weight Progress</TabsTrigger>
           <TabsTrigger value="frequency">Workout Frequency</TabsTrigger>
@@ -31,48 +38,18 @@ export function ProgressVisualization({ data }: ProgressVisualizationProps) {
         </TabsList>
         
         <TabsContent value="weight" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <TrendingUp className="h-5 w-5" />
-                Weight Tracking
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <WeightChart data={data.weightEntries} />
-            </CardContent>
-          </Card>
+          <WeightChart data={data} />
         </TabsContent>
         
         <TabsContent value="frequency" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Target className="h-5 w-5" />
-                Workout Frequency
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <WorkoutFrequencyChart data={data.workouts} />
-            </CardContent>
-          </Card>
+          <WorkoutFrequencyChart data={data} />
         </TabsContent>
         
         <TabsContent value="calories" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <TrendingUp className="h-5 w-5" />
-                Daily Calories Burned
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <CaloriesChart data={data.dailyCalories} />
-            </CardContent>
-          </Card>
+          <CaloriesChart data={data} />
         </TabsContent>
       </Tabs>
-      
+
       {/* Personal Records */}
       <Card>
         <CardHeader>
@@ -82,19 +59,20 @@ export function ProgressVisualization({ data }: ProgressVisualizationProps) {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             {personalRecords.map((record, index) => (
               <div
                 key={index}
-                className="flex items-center justify-between p-4 border rounded-lg"
+                className="p-4 rounded-lg border bg-card hover:bg-accent/50 transition-colors"
               >
-                <div>
-                  <h4 className="font-medium">{record.name}</h4>
-                  <p className="text-sm text-muted-foreground">{record.date}</p>
+                <div className="flex items-center justify-between mb-2">
+                  <Target className="h-4 w-4 text-primary" />
+                  <span className="text-xs text-muted-foreground">
+                    {record.date}
+                  </span>
                 </div>
-                <Badge variant="secondary" className="text-lg font-bold">
-                  {record.value}
-                </Badge>
+                <h4 className="font-medium text-sm mb-1">{record.name}</h4>
+                <p className="text-2xl font-bold text-primary">{record.value}</p>
               </div>
             ))}
           </div>

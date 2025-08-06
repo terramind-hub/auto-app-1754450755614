@@ -12,20 +12,18 @@ interface WorkoutTrackingProps {
 }
 
 export function WorkoutTracking({ data }: WorkoutTrackingProps) {
-  const recentWorkouts = data.workouts.slice(-5).reverse()
-
-  const getWorkoutTypeColor = (type: string) => {
+  const getWorkoutIcon = (type: string) => {
     switch (type.toLowerCase()) {
       case 'cardio':
-        return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300'
+        return '🏃'
       case 'strength':
-        return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300'
+        return '💪'
       case 'flexibility':
-        return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300'
+        return '🧘'
       case 'sports':
-        return 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300'
+        return '⚽'
       default:
-        return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300'
+        return '🏋️'
     }
   }
 
@@ -45,60 +43,58 @@ export function WorkoutTracking({ data }: WorkoutTrackingProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Activity className="h-5 w-5" />
-          Recent Workouts
+        <CardTitle className="flex items-center justify-between">
+          <span className="flex items-center gap-2">
+            <Activity className="h-5 w-5" />
+            Recent Workouts
+          </span>
+          <Button variant="outline" size="sm">
+            View All
+          </Button>
         </CardTitle>
       </CardHeader>
-      <CardContent>
-        <div className="space-y-4">
-          {recentWorkouts.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground">
-              <Activity className="h-12 w-12 mx-auto mb-4 opacity-50" />
-              <p>No workouts logged yet</p>
-              <p className="text-sm">Start tracking your fitness journey!</p>
-            </div>
-          ) : (
-            recentWorkouts.map((workout) => (
-              <div
-                key={workout.id}
-                className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors"
-              >
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-2">
-                    <h4 className="font-medium">{workout.name}</h4>
-                    <Badge className={getWorkoutTypeColor(workout.type)}>
-                      {workout.type}
-                    </Badge>
-                    <Badge className={getIntensityColor(workout.intensity)}>
-                      {workout.intensity}
-                    </Badge>
-                  </div>
-                  <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                    <div className="flex items-center gap-1">
-                      <Clock className="h-4 w-4" />
-                      {workout.duration} min
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <Calendar className="h-4 w-4" />
-                      {format(new Date(workout.date), 'MMM dd, yyyy')}
-                    </div>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <div className="font-medium">{workout.caloriesBurned}</div>
-                  <div className="text-sm text-muted-foreground">calories</div>
+      <CardContent className="space-y-4">
+        {data.recentWorkouts.slice(0, 5).map((workout, index) => (
+          <div
+            key={index}
+            className="flex items-center justify-between p-3 rounded-lg border bg-card hover:bg-accent/50 transition-colors"
+          >
+            <div className="flex items-center space-x-3">
+              <div className="text-2xl">
+                {getWorkoutIcon(workout.type)}
+              </div>
+              <div>
+                <h4 className="font-medium">{workout.name}</h4>
+                <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+                  <Calendar className="h-3 w-3" />
+                  <span>{format(new Date(workout.date), 'MMM dd')}</span>
+                  <Clock className="h-3 w-3 ml-2" />
+                  <span>{workout.duration} min</span>
                 </div>
               </div>
-            ))
-          )}
-        </div>
+            </div>
+            <div className="flex items-center space-x-2">
+              <Badge
+                variant="secondary"
+                className={getIntensityColor(workout.intensity)}
+              >
+                {workout.intensity}
+              </Badge>
+              <div className="text-right">
+                <div className="font-medium">{workout.calories} cal</div>
+                <div className="text-xs text-muted-foreground">
+                  {workout.type}
+                </div>
+              </div>
+            </div>
+          </div>
+        ))}
         
-        {recentWorkouts.length > 0 && (
-          <div className="mt-6 pt-4 border-t">
-            <Button variant="outline" className="w-full">
-              View All Workouts
-            </Button>
+        {data.recentWorkouts.length === 0 && (
+          <div className="text-center py-8 text-muted-foreground">
+            <Activity className="h-12 w-12 mx-auto mb-4 opacity-50" />
+            <p>No workouts logged yet</p>
+            <p className="text-sm">Start your fitness journey today!</p>
           </div>
         )}
       </CardContent>
