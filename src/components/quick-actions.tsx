@@ -1,8 +1,8 @@
-'use client'
+"use client"
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Play, Utensils, Scale, Target, Zap } from 'lucide-react'
+import { Play, Utensils, Scale, Target } from 'lucide-react'
 
 interface QuickActionsProps {
   onAction: (action: string) => void
@@ -12,45 +12,38 @@ export function QuickActions({ onAction }: QuickActionsProps) {
   const actions = [
     {
       id: 'workout',
-      title: 'Start Workout',
+      label: 'Start Workout',
       description: 'Log a new workout session',
       icon: Play,
-      color: 'bg-fitness-primary hover:bg-fitness-primary/90',
-      textColor: 'text-white'
+      color: 'bg-blue-500 hover:bg-blue-600',
     },
     {
       id: 'meal',
-      title: 'Log Meal',
+      label: 'Log Meal',
       description: 'Track your nutrition',
       icon: Utensils,
-      color: 'bg-fitness-secondary hover:bg-fitness-secondary/90',
-      textColor: 'text-white'
+      color: 'bg-green-500 hover:bg-green-600',
     },
     {
       id: 'weight',
-      title: 'Add Weight',
-      description: 'Update your weight',
+      label: 'Add Weight',
+      description: 'Record your weight',
       icon: Scale,
-      color: 'bg-fitness-accent hover:bg-fitness-accent/90',
-      textColor: 'text-white'
+      color: 'bg-purple-500 hover:bg-purple-600',
     },
     {
       id: 'goal',
-      title: 'Set Goal',
-      description: 'Create a new goal',
+      label: 'Set Goal',
+      description: 'Create a new fitness goal',
       icon: Target,
-      color: 'bg-purple-500 hover:bg-purple-600',
-      textColor: 'text-white'
-    }
+      color: 'bg-orange-500 hover:bg-orange-600',
+    },
   ]
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Zap className="h-5 w-5 text-fitness-primary" />
-          Quick Actions
-        </CardTitle>
+        <CardTitle>Quick Actions</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -59,13 +52,18 @@ export function QuickActions({ onAction }: QuickActionsProps) {
             return (
               <Button
                 key={action.id}
+                variant="outline"
+                className="h-auto p-4 flex flex-col items-center gap-2 hover:bg-muted/50"
                 onClick={() => onAction(action.id)}
-                className={`h-auto p-4 flex flex-col items-center gap-2 ${action.color} ${action.textColor}`}
               >
-                <Icon className="h-6 w-6" />
+                <div className={`p-3 rounded-full text-white ${action.color}`}>
+                  <Icon className="h-6 w-6" />
+                </div>
                 <div className="text-center">
-                  <div className="font-medium text-sm">{action.title}</div>
-                  <div className="text-xs opacity-90">{action.description}</div>
+                  <div className="font-medium text-sm">{action.label}</div>
+                  <div className="text-xs text-muted-foreground">
+                    {action.description}
+                  </div>
                 </div>
               </Button>
             )

@@ -1,237 +1,178 @@
-'use client'
+"use client"
 
 import { useState, useCallback } from 'react'
-import { FitnessData } from '@/types/fitness'
+import { FitnessData, Workout, Meal, WeightEntry, Goal } from '@/types/fitness'
 
-// Mock data for demonstration
+// Mock initial data
 const initialData: FitnessData = {
-  metrics: {
-    caloriesBurned: 2450,
-    workoutsCompleted: 12,
-    activeMinutes: 480,
-    weightProgress: -5.2
-  },
-  weeklyProgress: [
-    { day: 'Mon', workouts: 1, calories: 350 },
-    { day: 'Tue', workouts: 0, calories: 0 },
-    { day: 'Wed', workouts: 2, calories: 520 },
-    { day: 'Thu', workouts: 1, calories: 280 },
-    { day: 'Fri', workouts: 1, calories: 400 },
-    { day: 'Sat', workouts: 2, calories: 650 },
-    { day: 'Sun', workouts: 1, calories: 250 }
-  ],
-  currentStreak: 7,
-  recentWorkouts: [
+  workouts: [
     {
       id: '1',
       name: 'Morning Run',
-      category: 'Cardio',
+      type: 'Cardio',
       duration: 30,
-      calories: 350,
-      intensity: 'Moderate',
-      date: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString() // 2 hours ago
+      intensity: 'Medium',
+      caloriesBurned: 300,
+      date: '2024-01-15',
+      exercises: []
     },
     {
       id: '2',
-      name: 'Upper Body Strength',
-      category: 'Strength',
+      name: 'Strength Training',
+      type: 'Strength',
       duration: 45,
-      calories: 280,
       intensity: 'High',
-      date: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString() // 1 day ago
+      caloriesBurned: 250,
+      date: '2024-01-14',
+      exercises: []
     },
     {
       id: '3',
-      name: 'Yoga Flow',
-      category: 'Flexibility',
+      name: 'Yoga Session',
+      type: 'Flexibility',
       duration: 60,
-      calories: 180,
       intensity: 'Low',
-      date: new Date(Date.now() - 1000 * 60 * 60 * 48).toISOString() // 2 days ago
+      caloriesBurned: 150,
+      date: '2024-01-13',
+      exercises: []
     }
   ],
-  workoutCategories: [
+  meals: [
     {
-      name: 'Cardio',
-      count: 8,
-      lastWorkout: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString()
+      id: '1',
+      name: 'Breakfast',
+      calories: 350,
+      protein: 20,
+      carbs: 45,
+      fat: 12,
+      date: '2024-01-15'
     },
     {
-      name: 'Strength',
-      count: 6,
-      lastWorkout: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString()
-    },
-    {
-      name: 'Flexibility',
-      count: 4,
-      lastWorkout: new Date(Date.now() - 1000 * 60 * 60 * 48).toISOString()
-    },
-    {
-      name: 'Sports',
-      count: 2,
-      lastWorkout: new Date(Date.now() - 1000 * 60 * 60 * 72).toISOString()
+      id: '2',
+      name: 'Lunch',
+      calories: 450,
+      protein: 25,
+      carbs: 50,
+      fat: 18,
+      date: '2024-01-15'
     }
   ],
-  weightHistory: [
-    { date: '2024-01-01', weight: 175, target: 165 },
-    { date: '2024-01-08', weight: 174, target: 165 },
-    { date: '2024-01-15', weight: 172, target: 165 },
-    { date: '2024-01-22', weight: 171, target: 165 },
-    { date: '2024-01-29', weight: 169.8, target: 165 }
-  ],
-  workoutFrequency: [
-    { week: 'Week 1', workouts: 3, target: 4 },
-    { week: 'Week 2', workouts: 4, target: 4 },
-    { week: 'Week 3', workouts: 2, target: 4 },
-    { week: 'Week 4', workouts: 5, target: 4 }
-  ],
-  caloriesHistory: [
-    { date: '2024-01-22', calories: 420, target: 400 },
-    { date: '2024-01-23', calories: 380, target: 400 },
-    { date: '2024-01-24', calories: 450, target: 400 },
-    { date: '2024-01-25', calories: 520, target: 400 },
-    { date: '2024-01-26', calories: 350, target: 400 },
-    { date: '2024-01-27', calories: 480, target: 400 },
-    { date: '2024-01-28', calories: 410, target: 400 }
-  ],
-  personalRecords: [
-    {
-      exercise: 'Bench Press',
-      value: 185,
-      unit: 'lbs',
-      date: '2024-01-20',
-      improvement: 12
-    },
-    {
-      exercise: '5K Run',
-      value: 22.5,
-      unit: 'min',
-      date: '2024-01-18',
-      improvement: 8
-    },
-    {
-      exercise: 'Deadlift',
-      value: 225,
-      unit: 'lbs',
-      date: '2024-01-15',
-      improvement: 15
-    }
+  weightEntries: [
+    { id: '1', weight: 175, date: '2024-01-01' },
+    { id: '2', weight: 174, date: '2024-01-08' },
+    { id: '3', weight: 173, date: '2024-01-15' }
   ],
   goals: [
     {
       id: '1',
-      title: 'Lose 10 pounds',
-      description: 'Reach target weight of 165 lbs',
+      title: 'Lose Weight',
+      description: 'Reach target weight',
       type: 'weight',
-      current: 5.2,
-      target: 10,
+      target: 170,
       unit: 'lbs',
-      progress: 52,
       deadline: '2024-03-01',
-      createdAt: '2024-01-01'
+      completed: false
     },
     {
       id: '2',
-      title: 'Workout 4x per week',
-      description: 'Maintain consistent workout schedule',
+      title: 'Weekly Workouts',
+      description: 'Work out 4 times per week',
       type: 'workout',
-      current: 3,
       target: 4,
-      unit: 'sessions',
-      progress: 75,
-      deadline: '2024-02-29',
-      createdAt: '2024-01-01'
-    },
-    {
-      id: '3',
-      title: 'Burn 2000 calories weekly',
-      description: 'Increase weekly calorie burn',
-      type: 'calories',
-      current: 1650,
-      target: 2000,
-      unit: 'kcal',
-      progress: 82.5,
-      deadline: '2024-02-15',
-      createdAt: '2024-01-15'
+      unit: 'workouts',
+      deadline: '2024-12-31',
+      completed: false
     }
   ],
-  achievements: [
-    {
-      id: '1',
-      title: 'Week Warrior',
-      description: 'Completed 7 days in a row',
-      type: 'streak',
-      points: 100,
-      dateEarned: '2024-01-28'
-    },
-    {
-      id: '2',
-      title: 'Calorie Crusher',
-      description: 'Burned 500+ calories in a single workout',
-      type: 'milestone',
-      points: 50,
-      dateEarned: '2024-01-26'
-    },
-    {
-      id: '3',
-      title: 'Personal Best',
-      description: 'Set a new personal record',
-      type: 'personal_best',
-      points: 75,
-      dateEarned: '2024-01-20'
-    }
-  ]
+  dailyCalories: [
+    { date: '2024-01-10', calories: 280 },
+    { date: '2024-01-11', calories: 320 },
+    { date: '2024-01-12', calories: 450 },
+    { date: '2024-01-13', calories: 150 },
+    { date: '2024-01-14', calories: 250 },
+    { date: '2024-01-15', calories: 300 }
+  ],
+  weeklyProgress: [
+    { week: 'Week 1', workouts: 3, calories: 1200 },
+    { week: 'Week 2', workouts: 4, calories: 1450 },
+    { week: 'Week 3', workouts: 2, calories: 800 },
+    { week: 'Week 4', workouts: 5, calories: 1650 }
+  ],
+  currentStreak: 5
 }
 
 export function useFitnessData() {
   const [data, setData] = useState<FitnessData>(initialData)
 
-  const addWorkout = useCallback((workout: any) => {
+  const addWorkout = useCallback((workout: Omit<Workout, 'id'>) => {
+    const newWorkout: Workout = {
+      ...workout,
+      id: Date.now().toString()
+    }
+    
     setData(prev => ({
       ...prev,
-      recentWorkouts: [workout, ...prev.recentWorkouts].slice(0, 10),
-      metrics: {
-        ...prev.metrics,
-        workoutsCompleted: prev.metrics.workoutsCompleted + 1,
-        caloriesBurned: prev.metrics.caloriesBurned + workout.calories,
-        activeMinutes: prev.metrics.activeMinutes + workout.duration
-      }
+      workouts: [...prev.workouts, newWorkout],
+      dailyCalories: prev.dailyCalories.map(day => 
+        day.date === workout.date 
+          ? { ...day, calories: day.calories + workout.caloriesBurned }
+          : day
+      )
     }))
   }, [])
 
-  const addMeal = useCallback((meal: any) => {
-    // In a real app, this would update nutrition tracking
-    console.log('Meal logged:', meal)
+  const addMeal = useCallback((meal: Omit<Meal, 'id'>) => {
+    const newMeal: Meal = {
+      ...meal,
+      id: Date.now().toString()
+    }
+    
+    setData(prev => ({
+      ...prev,
+      meals: [...prev.meals, newMeal]
+    }))
   }, [])
 
   const addWeight = useCallback((weight: number) => {
+    const newEntry: WeightEntry = {
+      id: Date.now().toString(),
+      weight,
+      date: new Date().toISOString().split('T')[0]
+    }
+    
     setData(prev => ({
       ...prev,
-      weightHistory: [
-        ...prev.weightHistory,
-        {
-          date: new Date().toISOString(),
-          weight,
-          target: prev.weightHistory[prev.weightHistory.length - 1]?.target || weight - 10
-        }
-      ]
+      weightEntries: [...prev.weightEntries, newEntry]
     }))
   }, [])
 
-  const addGoal = useCallback((goal: any) => {
+  const addGoal = useCallback((goal: Omit<Goal, 'id' | 'completed'>) => {
+    const newGoal: Goal = {
+      ...goal,
+      id: Date.now().toString(),
+      completed: false
+    }
+    
     setData(prev => ({
       ...prev,
-      goals: [{ ...goal, id: Date.now().toString() }, ...prev.goals]
+      goals: [...prev.goals, newGoal]
     }))
   }, [])
 
   const updateStreak = useCallback(() => {
-    // In a real app, this would calculate streak based on actual workout data
+    // Simple streak calculation based on recent workouts
+    const today = new Date()
+    const recentWorkouts = data.workouts.filter(workout => {
+      const workoutDate = new Date(workout.date)
+      const daysDiff = Math.floor((today.getTime() - workoutDate.getTime()) / (1000 * 60 * 60 * 24))
+      return daysDiff <= 7
+    })
+    
     setData(prev => ({
       ...prev,
-      currentStreak: prev.currentStreak
+      currentStreak: recentWorkouts.length
     }))
-  }, [])
+  }, [data.workouts])
 
   return {
     data,

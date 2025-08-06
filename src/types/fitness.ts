@@ -1,63 +1,37 @@
-export interface FitnessData {
-  metrics: {
-    caloriesBurned: number
-    workoutsCompleted: number
-    activeMinutes: number
-    weightProgress: number
-  }
-  weeklyProgress: Array<{
-    day: string
-    workouts: number
-    calories: number
-  }>
-  currentStreak: number
-  recentWorkouts: Workout[]
-  workoutCategories: WorkoutCategory[]
-  weightHistory: WeightEntry[]
-  workoutFrequency: Array<{
-    week: string
-    workouts: number
-    target: number
-  }>
-  caloriesHistory: Array<{
-    date: string
-    calories: number
-    target: number
-  }>
-  personalRecords: PersonalRecord[]
-  goals: Goal[]
-  achievements: Achievement[]
+export interface Exercise {
+  id: string
+  name: string
+  sets: number
+  reps: number
+  weight?: number
+  duration?: number
 }
 
 export interface Workout {
   id: string
   name: string
-  category: string
+  type: string
   duration: number
-  calories: number
   intensity: string
+  caloriesBurned: number
   date: string
-  notes?: string
+  exercises: Exercise[]
 }
 
-export interface WorkoutCategory {
+export interface Meal {
+  id: string
   name: string
-  count: number
-  lastWorkout: string
+  calories: number
+  protein: number
+  carbs: number
+  fat: number
+  date: string
 }
 
 export interface WeightEntry {
-  date: string
+  id: string
   weight: number
-  target?: number
-}
-
-export interface PersonalRecord {
-  exercise: string
-  value: number
-  unit: string
   date: string
-  improvement: number
 }
 
 export interface Goal {
@@ -65,30 +39,29 @@ export interface Goal {
   title: string
   description: string
   type: string
-  current: number
   target: number
   unit: string
-  progress: number
   deadline: string
-  createdAt: string
+  completed: boolean
 }
 
-export interface Achievement {
-  id: string
-  title: string
-  description: string
-  type: string
-  points: number
-  dateEarned: string
-}
-
-export interface Meal {
-  id: string
-  name: string
-  type: string
-  calories: number
-  protein: number
-  carbs: number
-  fat: number
+export interface DailyCalories {
   date: string
+  calories: number
+}
+
+export interface WeeklyProgress {
+  week: string
+  workouts: number
+  calories: number
+}
+
+export interface FitnessData {
+  workouts: Workout[]
+  meals: Meal[]
+  weightEntries: WeightEntry[]
+  goals: Goal[]
+  dailyCalories: DailyCalories[]
+  weeklyProgress: WeeklyProgress[]
+  currentStreak: number
 }

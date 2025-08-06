@@ -1,11 +1,10 @@
-'use client'
+"use client"
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Progress } from '@/components/ui/progress'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Target, Trophy, Plus, Calendar, Star } from 'lucide-react'
+import { Target, Award, Plus, Calendar } from 'lucide-react'
 import { FitnessData } from '@/types/fitness'
 
 interface GoalsAchievementsProps {
@@ -13,148 +12,145 @@ interface GoalsAchievementsProps {
 }
 
 export function GoalsAchievements({ data }: GoalsAchievementsProps) {
-  const { goals, achievements } = data
+  const achievements = [
+    { name: 'First Workout', description: 'Complete your first workout', earned: true, date: '2024-01-01' },
+    { name: 'Week Warrior', description: 'Work out 5 days in a week', earned: true, date: '2024-01-07' },
+    { name: 'Calorie Crusher', description: 'Burn 500+ calories in a day', earned: true, date: '2024-01-05' },
+    { name: 'Consistency King', description: 'Maintain a 7-day streak', earned: data.currentStreak >= 7, date: data.currentStreak >= 7 ? new Date().toISOString().split('T')[0] : null },
+    { name: 'Marathon Prep', description: 'Run 20+ miles in a week', earned: false, date: null },
+    { name: 'Strength Builder', description: 'Complete 10 strength workouts', earned: false, date: null },
+  ]
 
-  const getGoalTypeIcon = (type: string) => {
-    switch (type.toLowerCase()) {
+  const getGoalProgress = (goal: any) => {
+    switch (goal.type) {
       case 'weight':
-        return '⚖️'
+        const currentWeight = data.weightEntries[data.weightEntries.length - 1]?.weight || 0
+        const startWeight = data.weightEntries[0]?.weight || currentWeight
+        const progress = Math.abs(currentWeight - startWeight) / Math.abs(goal.target - startWeight) * 100
+        return Math.min(progress, 100)
       case 'workout':
-        return '🏋️'
-      case 'cardio':
-        return '🏃'
-      case 'strength':
-        return '💪'
+        const weeklyWorkouts = data.workouts.filter(w => {
+          const workoutDate = new Date(w.date)
+          const weekAgo = new Date()
+          weekAgo.setDate(weekAgo.getDate() - 7)
+          return workoutDate >= weekAgo
+        }).length
+        return (weeklyWorkouts / goal.target) * 100
+      case 'calories':
+        const todayCalories = data.dailyCalories[data.dailyCalories.length - 1]?.calories || 0
+        return (todayCalories / goal.target) * 100
       default:
-        return '🎯'
+        return 0
     }
-  }
-
-  const getAchievementIcon = (type: string) => {
-    switch (type.toLowerCase()) {
-      case 'streak':
-        return '🔥'
-      case 'milestone':
-        return '🏆'
-      case 'personal_best':
-        return '⭐'
-      case 'consistency':
-        return '📅'
-      default:
-        return '🎖️'
-    }
-  }
-
-  const getProgressColor = (progress: number) => {
-    if (progress >= 100) return 'bg-green-500'
-    if (progress >= 75) return 'bg-blue-500'
-    if (progress >= 50) return 'bg-yellow-500'
-    return 'bg-gray-500'
   }
 
   return (
-    <section id="goals">
+    <div className="space-y-6">
+      {/* Goals Section */}
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
             <CardTitle className="flex items-center gap-2">
-              <Target className="h-5 w-5 text-fitness-primary" />
-              Goals & Achievements
+              <Target className="h-5 w-5" />
+              Current Goals
             </CardTitle>
-            <Button size="sm" className="bg-fitness-primary hover:bg-fitness-primary/90">
+            <Button size="sm" variant="outline">
               <Plus className="h-4 w-4 mr-2" />
-              New Goal
+              Add Goal
             </Button>
           </div>
         </CardHeader>
         <CardContent>
-          <Tabs defaultValue="goals" className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="goals">Active Goals</TabsTrigger>
-              <TabsTrigger value="achievements">Achievements</TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="goals" className="space-y-4 mt-4">
-              {goals.map((goal, index) => (
-                <Card key={index} className="p-4">
-                  <div className="flex items-start justify-between mb-3">
-                    <div className="flex items-center gap-3">
-                      <div className="text-2xl">{getGoalTypeIcon(goal.type)}</div>
+          <div className="space-y-4">
+            {data.goals.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">
+                <Target className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                <p>No goals set yet</p>
+                <p className="text-sm">Set your first fitness goal!</p>
+              </div>
+            ) : (
+              data.goals.map((goal) => {
+                const progress = getGoalProgress(goal)
+                return (
+                  <div key={goal.id} className="space-y-2">
+                    <div className="flex items-center justify-between">
                       <div>
-                        <h4 className="font-semibold text-foreground">{goal.title}</h4>
+                        <h4 className="font-medium">{goal.title}</h4>
                         <p className="text-sm text-muted-foreground">{goal.description}</p>
                       </div>
+                      <Badge variant={progress >= 100 ? 'default' : 'secondary'}>
+                        {Math.round(progress)}%
+                      </Badge>
                     </div>
-                    <Badge variant={goal.progress >= 100 ? 'default' : 'secondary'}>
-                      {goal.progress >= 100 ? 'Completed' : 'In Progress'}
-                    </Badge>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-sm">
-                      <span>Progress</span>
-                      <span className="font-medium">
-                        {goal.current}/{goal.target} {goal.unit}
-                      </span>
-                    </div>
-                    <Progress value={goal.progress} className="h-2" />
-                    <div className="flex justify-between text-xs text-muted-foreground">
-                      <span>{Math.round(goal.progress)}% complete</span>
-                      <span className="flex items-center gap-1">
+                    <Progress value={progress} className="h-2" />
+                    <div className="flex items-center justify-between text-sm text-muted-foreground">
+                      <span>Target: {goal.target} {goal.unit}</span>
+                      <div className="flex items-center gap-1">
                         <Calendar className="h-3 w-3" />
                         Due: {new Date(goal.deadline).toLocaleDateString()}
-                      </span>
-                    </div>
-                  </div>
-                </Card>
-              ))}
-              
-              {goals.length === 0 && (
-                <div className="text-center py-8 text-muted-foreground">
-                  <Target className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                  <p>No active goals</p>
-                  <p className="text-sm">Set your first goal to start tracking progress</p>
-                </div>
-              )}
-            </TabsContent>
-
-            <TabsContent value="achievements" className="space-y-4 mt-4">
-              <div className="grid grid-cols-1 gap-4">
-                {achievements.map((achievement, index) => (
-                  <Card key={index} className="p-4">
-                    <div className="flex items-center gap-4">
-                      <div className="text-3xl">{getAchievementIcon(achievement.type)}</div>
-                      <div className="flex-1">
-                        <div className="flex items-center justify-between">
-                          <h4 className="font-semibold text-foreground">{achievement.title}</h4>
-                          <Badge className="bg-yellow-500/10 text-yellow-700 border-yellow-500/20">
-                            <Star className="h-3 w-3 mr-1" />
-                            {achievement.points} pts
-                          </Badge>
-                        </div>
-                        <p className="text-sm text-muted-foreground mt-1">
-                          {achievement.description}
-                        </p>
-                        <p className="text-xs text-muted-foreground mt-2">
-                          Earned on {new Date(achievement.dateEarned).toLocaleDateString()}
-                        </p>
                       </div>
                     </div>
-                  </Card>
-                ))}
-              </div>
-              
-              {achievements.length === 0 && (
-                <div className="text-center py-8 text-muted-foreground">
-                  <Trophy className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                  <p>No achievements yet</p>
-                  <p className="text-sm">Complete workouts and goals to earn achievements</p>
-                </div>
-              )}
-            </TabsContent>
-          </Tabs>
+                  </div>
+                )
+              })
+            )}
+          </div>
         </CardContent>
       </Card>
-    </section>
+      
+      {/* Achievements Section */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Award className="h-5 w-5" />
+            Achievements
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {achievements.map((achievement, index) => (
+              <div
+                key={index}
+                className={`p-4 border rounded-lg transition-all ${
+                  achievement.earned
+                    ? 'bg-primary/5 border-primary/20'
+                    : 'bg-muted/30 border-muted'
+                }`}
+              >
+                <div className="flex items-start justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    <Award
+                      className={`h-5 w-5 ${
+                        achievement.earned ? 'text-primary' : 'text-muted-foreground'
+                      }`}
+                    />
+                    <h4 className={`font-medium ${
+                      achievement.earned ? 'text-foreground' : 'text-muted-foreground'
+                    }`}>
+                      {achievement.name}
+                    </h4>
+                  </div>
+                  {achievement.earned && (
+                    <Badge variant="default" className="text-xs">
+                      Earned
+                    </Badge>
+                  )}
+                </div>
+                <p className={`text-sm ${
+                  achievement.earned ? 'text-muted-foreground' : 'text-muted-foreground/70'
+                }`}>
+                  {achievement.description}
+                </p>
+                {achievement.earned && achievement.date && (
+                  <p className="text-xs text-muted-foreground mt-2">
+                    Earned on {new Date(achievement.date).toLocaleDateString()}
+                  </p>
+                )}
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+    </div>
   )
 }
